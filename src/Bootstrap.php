@@ -15,10 +15,18 @@ $whoops = new \Whoops\Run;
 if ($environment !== 'production') {
     $whoops->pushHandler(new \Whoops\Handler\PrettyPageHandler);
 } else {
-    $whoops->pushHandler(function($e){
+    $whoops->pushHandler(function ($e) {
         echo 'Friendly error page and send an email to the developer';
     });
 }
 $whoops->register();
 
-throw new \Exception;
+$request = new \Http\HttpRequest($_GET, $_POST, $_COOKIE, $_FILES, $_SERVER);
+$response = new \Http\HttpResponse;
+
+foreach ($response->getHeaders() as $header) {
+    header($header, false);
+}
+$response->setContent('404 - Page not found');
+$response->setStatusCode(404);
+echo $response->getContent();
